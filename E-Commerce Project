@@ -1,0 +1,437 @@
+Pom.xml:
+<dependencies>
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.8.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.8.1</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.8.1</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+-------------------------------------------------------------
+WebDriver Setup
+package utils;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class WebDriverSetup {
+    public static WebDriver getDriver(String browser) {
+        WebDriver driver;
+        if (browser.equalsIgnoreCase("chrome")) {
+            System.setProperty("webdriver.chrome.driver", "C:\\Users\\HP\\Downloads\\chromedriver-win64\\chromedriver.exe");
+            driver = new ChromeDriver();
+        } else if (browser.equalsIgnoreCase("firefox")) {
+            System.setProperty("webdriver.gecko.driver", "path/to/geckodriver");
+            driver = new FirefoxDriver();
+        } else {
+            throw new IllegalArgumentException("Browser not supported.");
+        }
+        driver.manage().window().maximize();
+        return driver;
+    }
+}
+-------------------------------------------------------------
+Page Object Model (POM) Classes
+HomePage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class HomePage {
+    WebDriver driver;
+
+    public HomePage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public boolean isUrlValid(String expectedUrl) {
+        return driver.getCurrentUrl().equals(expectedUrl);
+    }
+
+    public void navigateToSignup() {
+        driver.findElement(By.cssSelector("a[href*='account/create']")).click();
+    }
+
+    public void navigateToLogin() {
+        driver.findElement(By.cssSelector("a[href*='account/signin']")).click();
+    }
+    
+    // Add methods to interact with other elements on the home page
+}
+-------------------------------------------------------------
+SignupPage.java
+
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class SignupPage {
+    WebDriver driver;
+
+    public SignupPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    By firstNameField = By.id("firstName");
+    By lastNameField = By.id("lastName");
+    By emailField = By.id("email");
+    By passwordField = By.id("password");
+    By signUpButton = By.cssSelector("button[type='submit']");
+
+    public void fillSignupForm(String firstName, String lastName, String email, String password) {
+        driver.findElement(firstNameField).sendKeys(firstName);
+        driver.findElement(lastNameField).sendKeys(lastName);
+        driver.findElement(emailField).sendKeys(email);
+        driver.findElement(passwordField).sendKeys(password);
+    }
+
+    public void submitSignupForm() {
+        driver.findElement(signUpButton).click();
+    }
+
+    public boolean isSignupSuccessful() {
+        // Logic to validate successful signup
+        return driver.findElement(By.cssSelector("div.success")).isDisplayed();
+    }
+}
+-------------------------------------------------------------
+LoginPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class LoginPage {
+    WebDriver driver;
+
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    By emailField = By.id("email");
+    By passwordField = By.id("password");
+    By loginButton = By.cssSelector("button[type='submit']");
+
+    public void login(String email, String password) {
+        driver.findElement(emailField).sendKeys(email);
+        driver.findElement(passwordField).sendKeys(password);
+        driver.findElement(loginButton).click();
+    }
+
+    public boolean isLoginSuccessful() {
+        // Logic to validate successful login
+        return driver.findElement(By.cssSelector("div.welcome-message")).isDisplayed();
+    }
+}
+-------------------------------------------------------------
+MenuPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class MenuPage {
+    WebDriver driver;
+
+    public MenuPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void navigateToDepartment(String department) {
+        driver.findElement(By.linkText(department)).click();
+    }
+
+    public void navigateToBrand(String brand) {
+        driver.findElement(By.linkText(brand)).click();
+    }
+
+    public String getPageTitle() {
+        return driver.getTitle();
+    }
+}
+-------------------------------------------------------------
+ProductPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class ProductPage {
+    WebDriver driver;
+
+    public ProductPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void searchProduct(String productName) {
+        driver.findElement(By.id("gh-search-input")).sendKeys(productName);
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    }
+
+    public void addToCart() {
+        driver.findElement(By.cssSelector("button.add-to-cart-button")).click();
+    }
+
+    public void navigateToCart() {
+        driver.findElement(By.cssSelector("a[href*='cart']")).click();
+    }
+}
+-------------------------------------------------------------
+CheckoutPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class CheckoutPage {
+    WebDriver driver;
+
+    public CheckoutPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public void fillCheckoutForm(String name, String address, String paymentDetails) {
+        driver.findElement(By.id("name")).sendKeys(name);
+        driver.findElement(By.id("address")).sendKeys(address);
+        driver.findElement(By.id("payment")).sendKeys(paymentDetails);
+    }
+
+    public void placeOrder() {
+        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    }
+
+    public boolean isOrderSuccessful() {
+        // Logic to validate order confirmation
+        return driver.findElement(By.cssSelector("div.confirmation-message")).isDisplayed();
+    }
+}
+-------------------------------------------------------------
+FooterPage.java
+package pages;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+
+public class FooterPage {
+    WebDriver driver;
+
+    public FooterPage(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    public boolean validateFooterLinks() {
+        return driver.findElement(By.cssSelector("footer a[href*='about-us']")).isDisplayed() &&
+               driver.findElement(By.cssSelector("footer a[href*='contact-us']")).isDisplayed();
+        // Add additional footer links as needed
+    }
+}
+-------------------------------------------------------------
+Test Classes
+HomePageTests.java
+package tests;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import pages.HomePage;
+import utils.WebDriverSetup;
+
+public class HomePageTests {
+    WebDriver driver;
+
+    @Before
+    public void setUp() {
+        driver = WebDriverSetup.getDriver("chrome");
+        driver.get("https://www.bestbuy.com/");
+    }
+
+    @Test
+    public void testUrlValidation() {
+        HomePage homePage = new HomePage(driver);
+        assert(homePage.isUrlValid("https://www.bestbuy.com/"));
+    }
+
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+}
+-------------------------------------------------------------
+SignupLoginTests.java
+package tests;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import pages.HomePage;
+import pages.LoginPage;
+import pages.SignupPage;
+import utils.WebDriverSetup;
+
+public class SignupLoginTests {
+    WebDriver driver;
+
+    @Before
+    public void setUp() {
+        driver = WebDriverSetup.getDriver("chrome");
+        driver.get("https://www.bestbuy.com/");
+    }
+
+    @Test
+    public void testSignup() {
+        HomePage homePage = new HomePage(driver);
+        homePage.navigateToSignup();
+
+        SignupPage signupPage = new SignupPage(driver);
+        signupPage.fillSignupForm("John", "Doe", "john.doe@example.com", "Password123");
+        signupPage.submitSignupForm();
+        assert(signupPage.isSignupSuccessful());
+    }
+
+    @Test
+    public void testLogin() {
+        HomePage homePage = new HomePage(driver);
+        homePage.navigateToLogin();
+
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.login("john.doe@example.com", "Password123");
+        assert(loginPage.isLoginSuccessful());
+    }
+
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+}
+-------------------------------------------------------------
+MenuNavigationTests.java
+package tests;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import pages.MenuPage;
+import utils.WebDriverSetup;
+
+public class MenuNavigationTests {
+    WebDriver driver;
+
+    @Before
+    public void setUp() {
+        driver = WebDriverSetup.getDriver("chrome");
+        driver.get("https://www.bestbuy.com/");
+    }
+
+    @Test
+    public void testDepartmentNavigation() {
+        MenuPage menuPage = new MenuPage(driver);
+        menuPage.navigateToDepartment("Computers & Tablets");
+        assert(menuPage.getPageTitle().contains("Computers & Tablets"));
+    }
+
+    @Test
+    public void testBrandNavigation() {
+        MenuPage menuPage = new MenuPage(driver);
+        menuPage.navigateToBrand("Apple");
+        assert(menuPage.getPageTitle().contains("Apple"));
+    }
+
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+}
+-------------------------------------------------------------
+ProductSearchTests.java
+package tests;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import pages.ProductPage;
+import utils.WebDriverSetup;
+
+public class ProductSearchTests {
+    WebDriver driver;
+
+    @Before
+    public void setUp() {
+        driver = WebDriverSetup.getDriver("chrome");
+        driver.get("https://www.bestbuy.com/");
+    }
+
+    @Test
+    public void testSearchAndAddToCart() {
+        ProductPage productPage = new ProductPage(driver);
+        productPage.searchProduct("Laptop");
+        productPage.addToCart();
+        productPage.navigateToCart();
+        // Add assertions to validate item in cart
+    }
+
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+}
+-------------------------------------------------------------
+CheckoutTests.java
+package tests;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.WebDriver;
+import pages.CheckoutPage;
+import pages.ProductPage;
+import utils.WebDriverSetup;
+
+public class CheckoutTests {
+    WebDriver driver;
+
+    @Before
+    public void setUp() {
+        driver = WebDriverSetup.getDriver("chrome");
+        driver.get("https://www.bestbuy.com/");
+    }
+
+    @Test
+    public void testCheckoutProcess() {
+        ProductPage productPage = new ProductPage(driver);
+        productPage.searchProduct("Laptop");
+        productPage.addToCart();
+        productPage.navigateToCart();
+
+        CheckoutPage checkoutPage = new CheckoutPage(driver);
+        checkoutPage.fillCheckoutForm("John Doe", "123 Main St", "4111111111111111");
+        checkoutPage.placeOrder();
+        assert(checkoutPage.isOrderSuccessful());
+    }
+
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+}
+-------------------------------------------------------------
+Screenshots
+File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+FileUtils.copyFile(screenshot, new File("path/to/screenshots/screenshot.png"));
